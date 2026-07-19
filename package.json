@@ -1,0 +1,16 @@
+{
+  "name": "civicsync-ai",
+  "version": "1.0.0",
+  "description": "CivicSync AI Platform",
+  "scripts": {
+    "start": "node backend/server.js",
+    "server": "npm run dev --prefix backend",
+    "client": "npm run dev --prefix frontend",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "build": "npm run build --prefix frontend",
+    "start:prod": "pm2 start ecosystem.config.js"
+  },
+  "dependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
