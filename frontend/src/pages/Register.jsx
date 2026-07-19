@@ -19,7 +19,8 @@ const Register = () => {
     password: '',
     confirmPassword: ''
   });
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [successToast, setSuccessToast] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -164,12 +165,12 @@ const Register = () => {
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
-                  className="w-full rounded-xl border border-slate-200 bg-white/60 py-3 pl-10 pr-4 text-sm text-slate-900 dark:text-white focus:border-primary-500 focus:outline-none dark:border-slate-800 dark:bg-slate-900/60"
+                  className="w-full rounded-xl border border-slate-200 bg-white/60 py-3 pl-10 pr-4 text-sm focus:border-primary-500 focus:outline-none dark:border-slate-800 dark:bg-slate-900/60"
                   placeholder="Enter full name"
                   required
                 />
               </div>
-            </div>z
+            </div>
 
             {/* Email */}
             <div>
@@ -183,7 +184,7 @@ const Register = () => {
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  className="w-full rounded-xl border border-slate-200 bg-white/60 py-3 pl-10 pr-4 text-sm text-slate-900 dark:text-white focus:border-primary-500 focus:outline-none dark:border-slate-800 dark:bg-slate-900/60"
+                  className="w-full rounded-xl border border-slate-200 bg-white/60 py-3 pl-10 pr-4 text-sm focus:border-primary-500 focus:outline-none dark:border-slate-800 dark:bg-slate-900/60"
                   placeholder="name@example.com"
                   required
                 />
@@ -202,7 +203,7 @@ const Register = () => {
                   name="phone"
                   value={formData.phone}
                   onChange={handleChange}
-                  className="w-full rounded-xl border border-slate-200 bg-white/60 py-3 pl-10 pr-4 text-sm text-slate-900 dark:text-white focus:border-primary-500 focus:outline-none dark:border-slate-800 dark:bg-slate-900/60"
+                  className="w-full rounded-xl border border-slate-200 bg-white/60 py-3 pl-10 pr-4 text-sm focus:border-primary-500 focus:outline-none dark:border-slate-800 dark:bg-slate-900/60"
                   placeholder="Enter 10-digit number"
                   required
                 />
@@ -266,7 +267,7 @@ const Register = () => {
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
-                  className="w-full rounded-xl border border-slate-200 bg-white/60 py-3 pl-10 pr-10 text-sm text-slate-900 dark:text-white focus:border-primary-500 focus:outline-none dark:border-slate-800 dark:bg-slate-900/60"
+                  className="w-full rounded-xl border border-slate-200 bg-white/60 py-3 pl-10 pr-10 text-sm focus:border-primary-500 focus:outline-none dark:border-slate-800 dark:bg-slate-900/60"
                   placeholder="At least 6 characters"
                   required
                 />
@@ -288,25 +289,14 @@ const Register = () => {
                   <Lock className="h-4 w-4 text-slate-400" />
                 </div>
                 <input
-                  type={showConfirmPassword ? "text" : "password"}
+                  type="password"
                   name="confirmPassword"
                   value={formData.confirmPassword}
                   onChange={handleChange}
-                  className="w-full rounded-xl border border-slate-200 bg-white/60 py-3 pl-10 pr-10 text-sm text-slate-900 dark:text-white focus:border-primary-500 focus:outline-none dark:border-slate-800 dark:bg-slate-900/60"
+                  className="w-full rounded-xl border border-slate-200 bg-white/60 py-3 pl-10 pr-4 text-sm focus:border-primary-500 focus:outline-none dark:border-slate-800 dark:bg-slate-900/60"
                   placeholder="Re-enter password"
                   required
                 />
-                <button
-                    type="button"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute inset-y-0 right-0 flex items-center pr-3"
-                    >
-                    {showConfirmPassword ? (
-                    <EyeOff className="h-4 w-4 text-slate-400" />
-                    ) : (
-                    <Eye className="h-4 w-4 text-slate-400" />
-                     )}
-                </button>
               </div>
             </div>
 
