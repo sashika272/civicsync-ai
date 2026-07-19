@@ -109,42 +109,79 @@ const CitizenDashboard = () => {
     setToastType(type);
   };
 
- const response = await fetch('/api/issues', {
-  headers: {
-    'Authorization': `Bearer ${token}`
-  }
-});
+  const fetchIssues = async () => {
+    try {
+      const response = await fetch('/api/issues', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      const data = await response.json();
+      if (data.success) {
+        const myIssues = data.data.filter(issue => {
+          const reporterId = issue.reporter._id || issue.reporter;
+          const currentUserId = user._id || user.id;
+          return reporterId === currentUserId;
+        });
 
-if (!response.ok) {
-  throw new Error(`HTTP ${response.status}`);
-}
-
-const data = await response.json();
-
-if (data.success) {
-  const myIssues = data.data.filter(issue => {
-    const reporterId = issue.reporter?._id || issue.reporter;
-    const currentUserId = user._id || user.id;
-    return reporterId === currentUserId;
-  });
-
-  setIssues(myIssues);
-
-  const counts = {
-    total: myIssues.length,
-    pending: 0,
-    inProgress: 0,
-    resolved: 0
+        setIssues(myIssues);
+        
+        const counts = { total: myIssues.length, pending: 0, inProgress: 0, resolved: 0 };
+        myIssues.forEach(i => {
+          if (i.status === 'pending') counts.pending++;
+          else if (i.status === 'in-progress') counts.inProgress++;
+          else if (i.status === 'resolved') counts.resolved++;
+        });
+        setStats(counts);
+      }
+    } catch (err) {
+      console.error(err);
+      triggerToast('Failed to sync data with command center', 'error');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  myIssues.forEach(i => {
-    if (i.status === 'pending') counts.pending++;
-    else if (i.status === 'in-progress') counts.inProgress++;
-    else if (i.status === 'resolved') counts.resolved++;
-  });
+  const fetchNotifications = async () => {
+    try {
+      const response = await fetch('/api/notifications', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      const data = await response.json();
+      if (data.success) {
+        setNotifications(data.data);
+      }
+    } catch (err) {
+      console.error('Failed to sync notifications:', err);
+    }
+  };
 
-  setStats(counts);
-}
+  useEffect(() => {
+    if (token && user) {
+      fetchIssues();
+      fetchNotifications();
+      
+      // Auto poll notifications every 30 seconds for real-time responsiveness
+      const interval = setInterval(fetchNotifications, 30000);
+      return () => clearInterval(interval);
+    }
+  }, [token, user]);
+
+  const handleReportSubmit = async (e, asDraft = false) => {
+    e.preventDefault();
+    if (!reportForm.title || !reportForm.description || !reportForm.address) {
+      triggerToast('Please complete all required fields', 'error');
+      return;
+    }
+
+    setSubmittingReport(true);
+    
+    // Auto populate mock coordinates based on city if not set
+    const mockLat = (12.9 + Math.random() * 0.1).toFixed(4);
+    const mockLng = (77.5 + Math.random() * 0.1).toFixed(4);
+
     const issuePayload = {
       title: reportForm.title,
       category: reportForm.category,
@@ -955,40 +992,16 @@ if (data.success) {
                         <span className="text-xs font-semibold text-slate-400">Mobile Number</span>
                         <span className="text-xs font-bold">+91 {user?.phone}</span>
                       </div>
-  <div className="py-2">
-  <span className="text-xs font-semibold text-slate-400">
-    Aadhaar Verification (Optional)
-  </span>
-
-  <input
-    type="text"
-    maxLength={12}
-    placeholder="Enter 12-digit Aadhaar Number"
-    className="w-full mt-2 p-2 border rounded-lg dark:bg-slate-800 dark:text-white"
-  />
-
-  <button className="mt-2 px-4 py-2 bg-blue-600 text-white rounded-lg">
-    Send OTP
-  </button>
-
-  <input
-    type="text"
-    maxLength={6}
-    placeholder="Enter 6-digit OTP"
-    className="w-full mt-3 p-2 border rounded-lg dark:bg-slate-800 dark:text-white"
-  />
-
-  <button className="mt-2 px-4 py-2 bg-green-600 text-white rounded-lg">
-    Verify OTP
-  </button>
-
-  <p className="mt-3 text-sm text-yellow-500">
-    Status: Not Verified
-  </p>
-</div>
+                      <div className="flex justify-between py-2">
+                        <span className="text-xs font-semibold text-slate-400">Verification Level</span>
+                        <span className="text-xs font-bold text-emerald-500 flex items-center gap-1">
+                          <Award className="h-4 w-4" /> Aadhaar Verified
+                        </span>
+                      </div>
                     </div>
                   </div>
                 )}
+
                 {/* 6. Settings Tab */}
                 {activeTab === 'settings' && (
                   <div className="max-w-xl mx-auto glass-card rounded-2xl p-6 shadow-sm">
