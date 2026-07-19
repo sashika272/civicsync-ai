@@ -944,7 +944,6 @@ const CitizenDashboard = () => {
                     </div>
                   </div>
                 )}
-
                 {/* 4. Notifications Tab */}
                 {activeTab === 'notifications' && (
                   <div className="max-w-2xl mx-auto space-y-4">
