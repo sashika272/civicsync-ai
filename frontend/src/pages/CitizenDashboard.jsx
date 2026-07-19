@@ -61,7 +61,10 @@ const CitizenDashboard = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [toastType, setToastType] = useState('success');
-
+  const [aadhaarNumber, setAadhaarNumber] = useState('');
+  const [otp, setOtp] = useState('');
+  const [otpSent, setOtpSent] = useState(false);
+  const [aadhaarVerified, setAadhaarVerified] = useState(false);
   // Issues and stats state
   const [issues, setIssues] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -991,12 +994,51 @@ const CitizenDashboard = () => {
                         <span className="text-xs font-semibold text-slate-400">Mobile Number</span>
                         <span className="text-xs font-bold">+91 {user?.phone}</span>
                       </div>
-                      <div className="flex justify-between py-2">
-                        <span className="text-xs font-semibold text-slate-400">Verification Level</span>
-                        <span className="text-xs font-bold text-emerald-500 flex items-center gap-1">
-                          <Award className="h-4 w-4" /> Aadhaar Verified
-                        </span>
-                      </div>
+                         <div className="py-2">
+  <span className="text-xs font-semibold text-slate-400">
+    Aadhaar Verification (Optional)
+  </span>
+
+  <input
+    type="text"
+    maxLength={12}
+    value={aadhaarNumber}
+    onChange={(e) => setAadhaarNumber(e.target.value)}
+    placeholder="Enter 12-digit Aadhaar Number"
+    className="w-full mt-2 p-2 border rounded-lg dark:bg-slate-800 dark:text-white"
+  />
+
+  {!otpSent ? (
+    <button
+      onClick={() => setOtpSent(true)}
+      className="mt-2 px-4 py-2 bg-blue-600 text-white rounded-lg"
+    >
+      Send OTP
+    </button>
+  ) : (
+    <>
+      <input
+        type="text"
+        maxLength={6}
+        value={otp}
+        onChange={(e) => setOtp(e.target.value)}
+        placeholder="Enter 6-digit OTP"
+        className="w-full mt-3 p-2 border rounded-lg dark:bg-slate-800 dark:text-white"
+      />
+
+      <button
+        onClick={() => setAadhaarVerified(true)}
+        className="mt-2 px-4 py-2 bg-green-600 text-white rounded-lg"
+      >
+        Verify OTP
+      </button>
+    </>
+  )}
+
+  <p className="mt-3 text-sm">
+    Status: {aadhaarVerified ? "✅ Aadhaar Verified" : "⏳ Not Verified"}
+  </p>
+</div>
                     </div>
                   </div>
                 )}
