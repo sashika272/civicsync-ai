@@ -297,16 +297,16 @@ const Register = () => {
                   required
                 />
                 <button
-  type="button"
-  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-  className="absolute inset-y-0 right-0 flex items-center pr-3"
->
-  {showConfirmPassword ? (
-    <EyeOff className="h-4 w-4 text-slate-400" />
-  ) : (
-    <Eye className="h-4 w-4 text-slate-400" />
-  )}
-</button>
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute inset-y-0 right-0 flex items-center pr-3"
+                    >
+                    {showConfirmPassword ? (
+                    <EyeOff className="h-4 w-4 text-slate-400" />
+                    ) : (
+                    <Eye className="h-4 w-4 text-slate-400" />
+                     )}
+                </button>
               </div>
             </div>
 
