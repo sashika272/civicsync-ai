@@ -160,9 +160,17 @@ const Register = () => {
                 <div className="absolute inset-y-0 left-0 flex items-center pl-3">
                   <User className="h-4 w-4 text-slate-400" />
                 </div>
-                className="w-full rounded-xl border border-slate-200 bg-white/60 py-3 pl-10 pr-4 text-sm text-slate-900 dark:text-white focus:border-primary-500 focus:outline-none dark:border-slate-800 dark:bg-slate-900/60"
-            </div>
-            </div>
+                <input
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  className="w-full rounded-xl border border-slate-200 bg-white/60 py-3 pl-10 pr-4 text-sm text-slate-900 dark:text-white focus:border-primary-500 focus:outline-none dark:border-slate-800 dark:bg-slate-900/60"
+                  placeholder="Enter full name"
+                  required
+                />
+              </div>
+            </div>z
 
             {/* Email */}
             <div>
@@ -171,8 +179,16 @@ const Register = () => {
                 <div className="absolute inset-y-0 left-0 flex items-center pl-3">
                   <Mail className="h-4 w-4 text-slate-400" />
                 </div>
-                className="w-full rounded-xl border border-slate-200 bg-white/60 py-3 pl-10 pr-4 text-sm text-slate-900 dark:text-white focus:border-primary-500 focus:outline-none dark:border-slate-800 dark:bg-slate-900/60"
-            </div>
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className="w-full rounded-xl border border-slate-200 bg-white/60 py-3 pl-10 pr-4 text-sm text-slate-900 dark:text-white focus:border-primary-500 focus:outline-none dark:border-slate-800 dark:bg-slate-900/60"
+                  placeholder="name@example.com"
+                  required
+                />
+              </div>
             </div>
 
             {/* Phone */}
@@ -182,8 +198,16 @@ const Register = () => {
                 <div className="absolute inset-y-0 left-0 flex items-center pl-3">
                   <Phone className="h-4 w-4 text-slate-400" />
                 </div>
-                className="w-full rounded-xl border border-slate-200 bg-white/60 py-3 pl-10 pr-4 text-sm text-slate-900 dark:text-white focus:border-primary-500 focus:outline-none dark:border-slate-800 dark:bg-slate-900/60"
-            </div>
+                <input
+                  type="tel"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  className="w-full rounded-xl border border-slate-200 bg-white/60 py-3 pl-10 pr-4 text-sm text-slate-900 dark:text-white focus:border-primary-500 focus:outline-none dark:border-slate-800 dark:bg-slate-900/60"
+                  placeholder="Enter 10-digit number"
+                  required
+                />
+              </div>
             </div>
 
             {/* Role selector */}
