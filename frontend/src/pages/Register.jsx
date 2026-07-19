@@ -19,8 +19,7 @@ const Register = () => {
     password: '',
     confirmPassword: ''
   });
-
-  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState('');
   const [successToast, setSuccessToast] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -289,14 +288,25 @@ const Register = () => {
                   <Lock className="h-4 w-4 text-slate-400" />
                 </div>
                 <input
-                  type="password"
+                  type={showConfirmPassword ? "text" : "password"}
                   name="confirmPassword"
                   value={formData.confirmPassword}
                   onChange={handleChange}
-                  className="w-full rounded-xl border border-slate-200 bg-white/60 py-3 pl-10 pr-4 text-sm focus:border-primary-500 focus:outline-none dark:border-slate-800 dark:bg-slate-900/60"
+                  className="w-full rounded-xl border border-slate-200 bg-white/60 py-3 pl-10 pr-10 text-sm text-slate-900 dark:text-white focus:border-primary-500 focus:outline-none dark:border-slate-800 dark:bg-slate-900/60"
                   placeholder="Re-enter password"
                   required
                 />
+                <button
+  type="button"
+  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+  className="absolute inset-y-0 right-0 flex items-center pr-3"
+>
+  {showConfirmPassword ? (
+    <EyeOff className="h-4 w-4 text-slate-400" />
+  ) : (
+    <Eye className="h-4 w-4 text-slate-400" />
+  )}
+</button>
               </div>
             </div>
 
