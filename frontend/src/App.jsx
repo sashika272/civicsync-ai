@@ -15,6 +15,9 @@ const CitizenDashboard = lazy(() => import('./pages/CitizenDashboard'));
 const OfficerDashboard = lazy(() => import('./pages/OfficerDashboard'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const ComplaintDetails = lazy(() => import('./pages/ComplaintDetails'));
+const AboutUs = lazy(() => import('./pages/AboutUs'));
+const ContactUs = lazy(() => import('./pages/ContactUs'));
+const Settings = lazy(() => import('./pages/Settings'));
 
 // Loading Fallback Component
 const Loader = () => (
@@ -40,6 +43,8 @@ function App() {
               <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/verify-otp" element={<OtpVerification />} />
               <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/about" element={<AboutUs />} />
+              <Route path="/contact" element={<ContactUs />} />
 
               {/* Protected Role-Based Routes */}
               <Route
@@ -72,6 +77,14 @@ function App() {
                 element={
                   <ProtectedRoute allowedRoles={['citizen', 'officer', 'admin']}>
                     <ComplaintDetails />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/settings"
+                element={
+                  <ProtectedRoute allowedRoles={['citizen', 'officer', 'admin']}>
+                    <Settings />
                   </ProtectedRoute>
                 }
               />

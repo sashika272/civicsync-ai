@@ -359,6 +359,16 @@ const LandingPage = () => {
           <div className="grid gap-12 lg:grid-cols-2">
             
             <div>
+              <h4 className="font-bold text-slate-900 dark:text-white mb-4">Quick Links</h4>
+              <ul className="space-y-2 text-sm text-slate-500 dark:text-slate-400 font-semibold">
+                <li><Link to="/about" className="hover:text-primary-600 transition-colors">About Us</Link></li>
+                <li><Link to="/contact" className="hover:text-primary-600 transition-colors">Contact Us</Link></li>
+                <li><Link to="/register" className="hover:text-primary-600 transition-colors">Register as Citizen</Link></li>
+                <li><Link to="/login" className="hover:text-primary-600 transition-colors">Officer Login</Link></li>
+              </ul>
+            </div>
+            
+            <div>
               <h2 className="text-3xl font-extrabold tracking-tight dark:text-white sm:text-4xl">Support & Inquiries</h2>
               <p className="mt-4 text-lg text-slate-500 dark:text-slate-400">
                 Reach out to the smart city command center desk for API documentation, custom deployments, or administrative permissions.

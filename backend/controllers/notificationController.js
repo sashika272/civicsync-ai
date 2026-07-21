@@ -1,7 +1,7 @@
 const Notification = require('../models/Notification');
-const { mockNotifications } = require('../models/mockDb');
 
-const isMongo = () => !!process.env.MONGODB_URI;
+
+
 
 // @desc    Get user notifications
 // @route   GET /api/notifications

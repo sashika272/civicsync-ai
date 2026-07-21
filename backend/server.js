@@ -18,7 +18,7 @@ app.get('/api/health', (req, res) => {
     status: 'healthy',
     timestamp: new Date(),
     service: 'CivicSync AI Core API Server',
-    databaseMode: process.env.MONGODB_URI ? 'MongoDB Atlas' : 'Local Demo Mode'
+    databaseMode: 'MongoDB Atlas'
   });
 });
 
@@ -27,6 +27,7 @@ app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/issues', require('./routes/issueRoutes'));
 app.use('/api/users', require('./routes/userRoutes'));
 app.use('/api/notifications', require('./routes/notificationRoutes'));
+app.use('/api/contact', require('./routes/contactRoutes'));
 
 // Error handling middleware
 app.use((err, req, res, next) => {

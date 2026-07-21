@@ -163,8 +163,11 @@ const CitizenDashboard = () => {
       fetchIssues();
       fetchNotifications();
       
-      // Auto poll notifications every 30 seconds for real-time responsiveness
-      const interval = setInterval(fetchNotifications, 30000);
+      // Auto poll notifications and issues every 30 seconds for real-time responsiveness
+      const interval = setInterval(() => {
+        fetchNotifications();
+        fetchIssues();
+      }, 30000);
       return () => clearInterval(interval);
     }
   }, [token, user]);

@@ -1,17 +1,17 @@
 const Issue = require('../models/Issue');
 const User = require('../models/User');
 const Notification = require('../models/Notification');
-const { mockIssues, mockUsers, mockNotifications } = require('../models/mockDb');
+
 
 // Helper to check if Mongo is active
-const isMongo = () => !!process.env.MONGODB_URI;
+
 
 // Helper to dispatch user notifications in both Mongo and Demo Modes
 const sendNotification = async (recipientId, title, message, issueId, type = 'info') => {
   const cleanRecipientId = recipientId._id || recipientId;
   const cleanIssueId = issueId ? (issueId._id || issueId) : null;
   
-  if (isMongo()) {
+  
     try {
       await Notification.create({
         recipient: cleanRecipientId,
@@ -24,19 +24,7 @@ const sendNotification = async (recipientId, title, message, issueId, type = 'in
     } catch (err) {
       console.error('Failed to create DB notification:', err);
     }
-  } else {
-    mockNotifications.unshift({
-      _id: `notif_mock_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
-      recipient: cleanRecipientId.toString(),
-      title,
-      message,
-      type,
-      isRead: false,
-      issueId: cleanIssueId ? cleanIssueId.toString() : null,
-      createdAt: new Date()
-    });
-    console.log(`📡 [Mock Notification Logged] To: ${cleanRecipientId} | Msg: ${message}`);
-  }
+  
 };
 
 
@@ -182,7 +170,7 @@ const reportIssue = async (req, res) => {
       var aiMetadata = aiResults.aiMetadata;
     }
 
-    if (isMongo()) {
+    
       // 1. Create issue base
       const issue = await Issue.create({
         title,
@@ -233,69 +221,7 @@ const reportIssue = async (req, res) => {
       }
 
       return res.status(201).json({ success: true, data: issue });
-    } else {
-      // Demo Mode
-      const newIssue = {
-        _id: `issue_mock_${Date.now()}`,
-        title,
-        category,
-        description,
-        status: 'pending',
-        priority,
-        location: { lat, lng, address },
-        photoUrl: photoUrl || '',
-        images: images || [],
-        aiMetadata: typeof aiMetadata !== 'undefined' ? aiMetadata : undefined,
-        anonymous: !!anonymous,
-        isDraft: isDraftBool,
-        reporter: {
-          _id: req.user._id || req.user.id,
-          name: req.user.name,
-          email: req.user.email
-        },
-        assignedOfficer: null,
-        upvotes: [req.user._id || req.user.id],
-        duplicateOf: null,
-        potentialDuplicates: [],
-        timeline: [
-          {
-            status: 'pending',
-            remarks: isDraftBool ? 'Complaint saved as draft' : `Issue reported and AI routed under category: ${category}`,
-            updatedBy: req.user.name,
-            updatedAt: new Date()
-          }
-        ],
-        createdAt: new Date()
-      };
-
-      if (!isDraftBool) {
-        // Run duplicate matching in-memory
-        const dups = await findDuplicates(newIssue, mockIssues);
-        newIssue.potentialDuplicates = dups;
-        
-        // Update reciprocal links
-        dups.forEach(dupId => {
-          const matched = mockIssues.find(i => i._id === dupId);
-          if (matched && !matched.potentialDuplicates.includes(newIssue._id)) {
-            matched.potentialDuplicates.push(newIssue._id);
-          }
-        });
-
-        mockIssues.unshift(newIssue);
-
-        await sendNotification(
-          req.user._id || req.user.id, 
-          'Complaint Submitted Successfully', 
-          `Your report "${title}" has been filed. AI routed to: ${category}.`,
-          newIssue._id,
-          'success'
-        );
-      } else {
-        mockIssues.unshift(newIssue);
-      }
-
-      return res.status(201).json({ success: true, data: newIssue });
-    }
+    
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, message: 'Failed to submit issue report' });
@@ -309,7 +235,7 @@ const getIssues = async (req, res) => {
   const { status, category, reporter, isDraft } = req.query;
 
   try {
-    if (isMongo()) {
+    
       const query = {};
       
       // Filter status
@@ -338,41 +264,7 @@ const getIssues = async (req, res) => {
         .sort({ createdAt: -1 });
 
       return res.json({ success: true, count: issues.length, data: issues });
-    } else {
-      // Demo Mode Filter
-      let filteredIssues = [...mockIssues];
-
-      if (status) {
-        if (status === 'unassigned') {
-          filteredIssues = filteredIssues.filter(i => !i.assignedOfficer && !i.isDraft);
-        } else {
-          filteredIssues = filteredIssues.filter(i => i.status === status);
-        }
-      }
-      
-      if (category) {
-        filteredIssues = filteredIssues.filter(i => i.category === category);
-      }
-      
-      if (reporter) {
-        filteredIssues = filteredIssues.filter(i => {
-          const repId = i.reporter._id || i.reporter;
-          return repId === reporter;
-        });
-      }
-
-      if (isDraft !== undefined) {
-        const draftBool = isDraft === 'true';
-        filteredIssues = filteredIssues.filter(i => i.isDraft === draftBool);
-      } else {
-        filteredIssues = filteredIssues.filter(i => i.isDraft === false);
-      }
-
-      // Sort by date desc
-      filteredIssues.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
-      return res.json({ success: true, count: filteredIssues.length, data: filteredIssues });
-    }
+    
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, message: 'Failed to retrieve issues list' });
@@ -386,7 +278,7 @@ const getIssueById = async (req, res) => {
   const { id } = req.params;
 
   try {
-    if (isMongo()) {
+    
       const issue = await Issue.findById(id)
         .populate('reporter', 'name email phone')
         .populate('assignedOfficer', 'name email phone department')
@@ -397,24 +289,7 @@ const getIssueById = async (req, res) => {
       }
 
       return res.json({ success: true, data: issue });
-    } else {
-      // Demo Mode
-      const issue = mockIssues.find(i => i._id === id);
-      if (!issue) {
-        return res.status(404).json({ success: false, message: 'Issue report not found' });
-      }
-
-      // Populate potentialDuplicates manually for demo UI
-      const detailsIssue = { ...issue };
-      if (issue.potentialDuplicates) {
-        detailsIssue.potentialDuplicates = issue.potentialDuplicates.map(dupId => {
-          const dup = mockIssues.find(i => i._id === dupId);
-          return dup ? { _id: dup._id, title: dup.title, status: dup.status, location: dup.location } : null;
-        }).filter(Boolean);
-      }
-
-      return res.json({ success: true, data: detailsIssue });
-    }
+    
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, message: 'Server error retrieving issue details' });
@@ -430,11 +305,9 @@ const updateIssue = async (req, res) => {
 
   try {
     let issue;
-    if (isMongo()) {
+    
       issue = await Issue.findById(id);
-    } else {
-      issue = mockIssues.find(i => i._id === id);
-    }
+    
 
     if (!issue) {
       return res.status(404).json({ success: false, message: 'Issue not found' });
@@ -486,7 +359,7 @@ const updateIssue = async (req, res) => {
       ];
     }
 
-    if (isMongo()) {
+    
       const updatedIssue = await Issue.findByIdAndUpdate(id, { $set: updateFields }, { new: true });
       
       if (publishing) {
@@ -512,31 +385,7 @@ const updateIssue = async (req, res) => {
       }
 
       return res.json({ success: true, data: updatedIssue });
-    } else {
-      // Demo Mode
-      Object.assign(issue, updateFields);
-      
-      if (publishing) {
-        const dups = await findDuplicates(issue, mockIssues);
-        issue.potentialDuplicates = dups;
-        dups.forEach(dupId => {
-          const matched = mockIssues.find(i => i._id === dupId);
-          if (matched && !matched.potentialDuplicates.includes(issue._id)) {
-            matched.potentialDuplicates.push(issue._id);
-          }
-        });
-
-        await sendNotification(
-          req.user._id || req.user.id,
-          'Draft Published',
-          `Your draft complaint "${issue.title}" has been successfully published.`,
-          issue._id,
-          'success'
-        );
-      }
-
-      return res.json({ success: true, data: issue });
-    }
+    
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, message: 'Failed to update complaint details' });
@@ -551,11 +400,9 @@ const deleteIssue = async (req, res) => {
 
   try {
     let issue;
-    if (isMongo()) {
+    
       issue = await Issue.findById(id);
-    } else {
-      issue = mockIssues.find(i => i._id === id);
-    }
+    
 
     if (!issue) {
       return res.status(404).json({ success: false, message: 'Issue not found' });
@@ -573,7 +420,7 @@ const deleteIssue = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Cannot delete complaint after officer assignment' });
     }
 
-    if (isMongo()) {
+    
       await Issue.findByIdAndDelete(id);
       
       // Clean duplicate references
@@ -581,17 +428,7 @@ const deleteIssue = async (req, res) => {
         { potentialDuplicates: id },
         { $pull: { potentialDuplicates: id } }
       );
-    } else {
-      // Demo Mode
-      const idx = mockIssues.findIndex(i => i._id === id);
-      if (idx !== -1) mockIssues.splice(idx, 1);
-      
-      mockIssues.forEach(m => {
-        if (m.potentialDuplicates) {
-          m.potentialDuplicates = m.potentialDuplicates.filter(dupId => dupId !== id);
-        }
-      });
-    }
+    
 
     return res.json({ success: true, message: 'Complaint successfully cancelled and deleted' });
   } catch (error) {
@@ -612,7 +449,7 @@ const mergeIssue = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Please specify target original complaint ID' });
     }
 
-    if (isMongo()) {
+    
       const duplicate = await Issue.findById(id);
       const master = await Issue.findById(targetIssueId);
 
@@ -656,51 +493,7 @@ const mergeIssue = async (req, res) => {
       );
 
       return res.json({ success: true, message: 'Complaints merged successfully', data: duplicate });
-    } else {
-      // Demo Mode
-      const duplicate = mockIssues.find(i => i._id === id);
-      const master = mockIssues.find(i => i._id === targetIssueId);
-
-      if (!duplicate || !master) {
-        return res.status(404).json({ success: false, message: 'Duplicate or original complaint not found' });
-      }
-
-      duplicate.status = 'closed';
-      duplicate.duplicateOf = targetIssueId;
-      duplicate.timeline.push({
-        status: 'closed',
-        remarks: `Merged as duplicate of original complaint #${targetIssueId}. Tracing transferred.`,
-        updatedBy: req.user.name,
-        updatedAt: new Date()
-      });
-
-      // Upvote master
-      const dupRepId = duplicate.reporter._id || duplicate.reporter;
-      if (!master.upvotes.includes(dupRepId.toString())) {
-        master.upvotes.push(dupRepId.toString());
-      }
-
-      // Notify duplicate citizen
-      await sendNotification(
-        dupRepId,
-        'Complaint Merged',
-        `Your complaint "${duplicate.title}" has been merged with a matching report. Tracking transferred.`,
-        master._id,
-        'info'
-      );
-
-      // Notify master citizen
-      const masterRepId = master.reporter._id || master.reporter;
-      await sendNotification(
-        masterRepId,
-        'Complaint Upvoted',
-        `Another citizen has reported matching issues at your location. Upvote priority updated.`,
-        master._id,
-        'success'
-      );
-
-      return res.json({ success: true, message: 'Complaints merged successfully (Demo Mode)', data: duplicate });
-    }
+    
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, message: 'Failed to merge complaints' });
@@ -713,7 +506,7 @@ const upvoteIssue = async (req, res) => {
   const userId = req.user._id || req.user.id;
 
   try {
-    if (isMongo()) {
+    
       const issue = await Issue.findById(id);
       if (!issue) return res.status(404).json({ success: false, message: 'Issue not found' });
 
@@ -725,18 +518,7 @@ const upvoteIssue = async (req, res) => {
       }
       await issue.save();
       return res.json({ success: true, data: issue });
-    } else {
-      const issue = mockIssues.find(i => i._id === id);
-      if (!issue) return res.status(404).json({ success: false, message: 'Issue not found' });
-
-      const upvotedIdx = issue.upvotes.indexOf(userId.toString());
-      if (upvotedIdx !== -1) {
-        issue.upvotes.splice(upvotedIdx, 1);
-      } else {
-        issue.upvotes.push(userId.toString());
-      }
-      return res.json({ success: true, data: issue });
-    }
+    
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, message: 'Failed to update upvote state' });
@@ -751,7 +533,7 @@ const assignIssue = async (req, res) => {
   try {
     if (!officerId) return res.status(400).json({ success: false, message: 'Please select an officer' });
 
-    if (isMongo()) {
+    
       const officer = await User.findById(officerId);
       if (!officer) return res.status(404).json({ success: false, message: 'Officer not found' });
 
@@ -782,40 +564,7 @@ const assignIssue = async (req, res) => {
         .populate('assignedOfficer', 'name email phone');
 
       return res.json({ success: true, data: populatedIssue });
-    } else {
-      const officer = mockUsers.find(u => u._id === officerId);
-      if (!officer) return res.status(404).json({ success: false, message: 'Officer not found' });
-
-      const issue = mockIssues.find(i => i._id === id);
-      if (!issue) return res.status(404).json({ success: false, message: 'Issue not found' });
-
-      issue.assignedOfficer = {
-        _id: officer._id,
-        name: officer.name,
-        email: officer.email,
-        phone: officer.phone,
-        department: officer.department
-      };
-      issue.status = 'in-progress';
-      issue.timeline.push({
-        status: 'in-progress',
-        remarks: `Assigned to Officer: ${officer.name}. Scheduled under department: ${issue.category}`,
-        updatedBy: req.user.name,
-        updatedAt: new Date()
-      });
-
-      // Notify citizen
-      const citizenId = issue.reporter._id || issue.reporter;
-      await sendNotification(
-        citizenId,
-        'Officer Dispatched',
-        `Officer ${officer.name} has been assigned to resolve your complaint "${issue.title}".`,
-        issue._id,
-        'info'
-      );
-
-      return res.json({ success: true, data: issue });
-    }
+    
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, message: 'Failed to assign officer' });
@@ -830,7 +579,7 @@ const updateIssueStatus = async (req, res) => {
   try {
     if (!status) return res.status(400).json({ success: false, message: 'Please specify status' });
 
-    if (isMongo()) {
+    
       const issue = await Issue.findById(id);
       if (!issue) return res.status(404).json({ success: false, message: 'Issue not found' });
 
@@ -869,42 +618,7 @@ const updateIssueStatus = async (req, res) => {
         .populate('assignedOfficer', 'name email phone');
 
       return res.json({ success: true, data: populatedIssue });
-    } else {
-      const issue = mockIssues.find(i => i._id === id);
-      if (!issue) return res.status(404).json({ success: false, message: 'Issue not found' });
-
-      issue.status = status;
-      if (status === 'resolved') {
-        issue.resolutionProof = {
-          photoUrl: proofImage || '',
-          remarks: remarks || 'Resolved by field officer',
-          completedAt: new Date()
-        };
-        if (proofImage) {
-          issue.photoUrl = proofImage;
-          issue.images.push(proofImage);
-        }
-      }
-
-      issue.timeline.push({
-        status,
-        remarks: remarks || `Status updated to: ${status}`,
-        updatedBy: req.user.name,
-        updatedAt: new Date()
-      });
-
-      // Notify citizen
-      const citizenId = issue.reporter._id || issue.reporter;
-      await sendNotification(
-        citizenId,
-        `Status Updated: ${status}`,
-        `Your complaint "${issue.title}" status changed to ${status}. Notes: ${remarks || 'None'}`,
-        issue._id,
-        status === 'resolved' ? 'success' : 'info'
-      );
-
-      return res.json({ success: true, data: issue });
-    }
+    
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, message: 'Failed to update status' });
@@ -954,7 +668,7 @@ const voiceComplaint = async (req, res) => {
     };
 
     let issue;
-    if (isMongo()) {
+    
       issue = await Issue.create(issueData);
 
       const activeIssues = await Issue.find({ isDraft: false });
@@ -975,45 +689,7 @@ const voiceComplaint = async (req, res) => {
         issue._id,
         'success'
       );
-    } else {
-      issue = {
-        _id: `issue_voice_${Date.now()}`,
-        ...issueData,
-        photoUrl: '',
-        images: [],
-        anonymous: false,
-        isDraft: false,
-        reporter: {
-          _id: req.user._id || req.user.id,
-          name: req.user.name,
-          email: req.user.email
-        },
-        assignedOfficer: null,
-        upvotes: [req.user._id || req.user.id],
-        duplicateOf: null,
-        potentialDuplicates: [],
-        createdAt: new Date()
-      };
-
-      const dups = await findDuplicates(issue, mockIssues);
-      issue.potentialDuplicates = dups;
-      dups.forEach(dupId => {
-        const matched = mockIssues.find(i => i._id === dupId);
-        if (matched && !matched.potentialDuplicates.includes(issue._id)) {
-          matched.potentialDuplicates.push(issue._id);
-        }
-      });
-
-      mockIssues.unshift(issue);
-
-      await sendNotification(
-        req.user._id || req.user.id,
-        'Voice Complaint Filed',
-        `Your voice complaint "${title}" was successfully processed and filed (Demo Mode).`,
-        issue._id,
-        'success'
-      );
-    }
+    
 
     res.status(201).json({ success: true, data: issue });
   } catch (error) {
@@ -1026,11 +702,9 @@ const voiceComplaint = async (req, res) => {
 const getPredictiveMaintenance = async (req, res) => {
   try {
     let allIssues = [];
-    if (isMongo()) {
+    
       allIssues = await Issue.find({ isDraft: false });
-    } else {
-      allIssues = mockIssues;
-    }
+    
 
     const total = allIssues.length;
     const resolved = allIssues.filter(i => i.status === 'resolved').length;
@@ -1119,7 +793,7 @@ const submitFeedback = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Feedback rating must be between 1 and 5' });
     }
 
-    if (isMongo()) {
+    
       const issue = await Issue.findById(id);
       if (!issue) return res.status(404).json({ success: false, message: 'Complaint not found' });
 
@@ -1153,40 +827,7 @@ const submitFeedback = async (req, res) => {
       }
 
       return res.json({ success: true, data: issue });
-    } else {
-      const issue = mockIssues.find(i => i._id === id);
-      if (!issue) return res.status(404).json({ success: false, message: 'Complaint not found' });
-
-      if (issue.status !== 'resolved' && issue.status !== 'closed') {
-        return res.status(400).json({ success: false, message: 'Feedback can only be submitted for resolved complaints' });
-      }
-
-      issue.feedback = {
-        rating,
-        comment: comment || '',
-        createdAt: new Date()
-      };
-
-      issue.timeline.push({
-        status: issue.status,
-        remarks: `Citizen left feedback rating: ${rating}/5. Remarks: ${comment || 'None'}`,
-        updatedBy: req.user.name,
-        updatedAt: new Date()
-      });
-
-      if (issue.assignedOfficer) {
-        const offId = issue.assignedOfficer._id || issue.assignedOfficer;
-        await sendNotification(
-          offId,
-          'Citizen Left Review',
-          `Your resolved task "${issue.title}" received a rating of ${rating}/5 stars.`,
-          issue._id,
-          rating >= 4 ? 'success' : 'info'
-        );
-      }
-
-      return res.json({ success: true, data: issue });
-    }
+    
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, message: 'Failed to record feedback review' });

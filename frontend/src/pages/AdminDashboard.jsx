@@ -127,6 +127,12 @@ const AdminDashboard = () => {
         setLoading(true);
         await Promise.all([fetchIssues(), fetchOfficers(), fetchAnalytics()]);
         setLoading(false);
+        
+        const interval = setInterval(() => {
+          fetchIssues();
+          fetchAnalytics();
+        }, 30000);
+        return () => clearInterval(interval);
       }
     };
     init();

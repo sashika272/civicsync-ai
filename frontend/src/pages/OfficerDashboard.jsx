@@ -103,6 +103,8 @@ const OfficerDashboard = () => {
   useEffect(() => {
     if (token && user) {
       fetchIssues();
+      const interval = setInterval(fetchIssues, 30000);
+      return () => clearInterval(interval);
     }
   }, [token, user]);
 
