@@ -703,7 +703,7 @@ const CitizenDashboard = () => {
                               </div>
                               <h4 className="mt-1.5 text-sm font-bold text-slate-850 dark:text-slate-200">{issue.title}</h4>
                               <p className="mt-1 text-xs text-slate-450 dark:text-slate-400 flex items-center gap-1">
-                                <MapPin className="h-3 w-3 shrink-0" /> {issue.location.address}
+                                <MapPin className="h-3 w-3 shrink-0" /> {issue.location?.address}
                               </p>
                             </div>
                             
@@ -1276,7 +1276,7 @@ const CitizenDashboard = () => {
                 <div>
                   <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">GIS Location Address</h4>
                   <p className="mt-2 text-xs text-slate-650 dark:text-slate-350 flex items-center gap-1.5">
-                    <MapPin className="h-4 w-4 shrink-0 text-red-500" /> {selectedIssue.location.address}
+                    <MapPin className="h-4 w-4 shrink-0 text-red-500" /> {selectedIssue.location?.address}
                   </p>
                   <p className="mt-1 text-[10px] text-slate-400 font-mono ml-5">
                     GPS: {selectedIssue.location.lat}, {selectedIssue.location.lng}

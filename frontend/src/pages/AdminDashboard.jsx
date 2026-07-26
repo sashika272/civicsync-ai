@@ -481,7 +481,7 @@ const AdminDashboard = () => {
                           <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                             {issues
                               .filter(issue => {
-                                const matchesSearch = issue.title.toLowerCase().includes(searchTerm.toLowerCase());
+                                const matchesSearch = (issue.title || '').toLowerCase().includes(searchTerm.toLowerCase());
                                 const matchesStatus = statusFilter === 'all' || 
                                                       (statusFilter === 'unassigned' && !issue.assignedOfficer) ||
                                                       (issue.status === statusFilter);
@@ -691,7 +691,7 @@ const AdminDashboard = () => {
                 <div>
                   <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider font-sans">GIS Pin Address</h4>
                   <p className="mt-2 text-xs text-slate-650 dark:text-slate-350 flex items-center gap-1.5">
-                    <MapPin className="h-4 w-4 shrink-0 text-red-500" /> {selectedIssue.location.address}
+                    <MapPin className="h-4 w-4 shrink-0 text-red-500" /> {selectedIssue.location?.address}
                   </p>
                 </div>
 

@@ -430,7 +430,7 @@ const OfficerDashboard = () => {
                           <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                             {issues
                               .filter(issue => {
-                                const matchesSearch = issue.title.toLowerCase().includes(searchTerm.toLowerCase());
+                                const matchesSearch = (issue.title || '').toLowerCase().includes(searchTerm.toLowerCase());
                                 const matchesStatus = statusFilter === 'all' || issue.status === statusFilter;
                                 return matchesSearch && matchesStatus;
                               })
@@ -439,7 +439,7 @@ const OfficerDashboard = () => {
                                   <td className="p-4 font-mono text-xs">{issue._id.substring(0, 12)}</td>
                                   <td className="p-4">
                                     <p className="font-bold text-slate-900 dark:text-white">{issue.title}</p>
-                                    <p className="text-[10px] text-slate-400">Reporter: {issue.reporter.name || 'Citizen'}</p>
+                                    <p className="text-[10px] text-slate-400">Reporter: {issue.reporter?.name || 'Citizen'}</p>
                                   </td>
                                   <td className="p-4 capitalize">
                                     <span className={`rounded-full px-2 py-0.5 text-[10px] font-extrabold ${issue.priority === 'critical' ? 'bg-red-500/10 text-red-500' : 'bg-slate-200 text-slate-650 dark:bg-slate-850'}`}>
@@ -554,7 +554,7 @@ const OfficerDashboard = () => {
                 <div className="grid grid-cols-3 gap-4 text-xs">
                   <div className="rounded-xl bg-slate-50 p-3.5 dark:bg-slate-850">
                     <h4 className="font-semibold text-slate-400 uppercase tracking-wider">Citizen Reporter</h4>
-                    <p className="mt-1.5 font-bold text-slate-850 dark:text-slate-200">{selectedIssue.reporter.name || 'Aarav Sharma'}</p>
+                    <p className="mt-1.5 font-bold text-slate-850 dark:text-slate-200">{selectedIssue.reporter?.name || 'Citizen'}</p>
                   </div>
                   <div className="rounded-xl bg-slate-50 p-3.5 dark:bg-slate-850">
                     <h4 className="font-semibold text-slate-400 uppercase tracking-wider">Priority Level</h4>
@@ -562,7 +562,7 @@ const OfficerDashboard = () => {
                   </div>
                   <div className="rounded-xl bg-slate-50 p-3.5 dark:bg-slate-850">
                     <h4 className="font-semibold text-slate-400 uppercase tracking-wider">Coordinates</h4>
-                    <p className="mt-1.5 font-mono text-[10px] text-slate-850 dark:text-slate-200">{selectedIssue.location.lat}, {selectedIssue.location.lng}</p>
+                    <p className="mt-1.5 font-mono text-[10px] text-slate-850 dark:text-slate-200">{selectedIssue.location?.lat}, {selectedIssue.location?.lng}</p>
                   </div>
                 </div>
 
@@ -576,7 +576,7 @@ const OfficerDashboard = () => {
                 <div>
                   <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">GIS Address Pin</h4>
                   <p className="mt-2 text-xs text-slate-650 dark:text-slate-350 flex items-center gap-1.5">
-                    <MapPin className="h-4 w-4 shrink-0 text-red-500" /> {selectedIssue.location.address}
+                    <MapPin className="h-4 w-4 shrink-0 text-red-500" /> {selectedIssue.location?.address}
                   </p>
                 </div>
 
