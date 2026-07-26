@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { io } from 'socket.io-client';
 import ThemeToggle from '../components/ThemeToggle';
 import Toast from '../components/Toast';
 import MapModule from '../components/MapModule';
@@ -163,14 +164,52 @@ const CitizenDashboard = () => {
       fetchIssues();
       fetchNotifications();
       
-      // Auto poll notifications and issues every 30 seconds for real-time responsiveness
+      const socketUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' ? 'http://localhost:5000' : 'https://civicsync-ai.onrender.com');
+      const socket = io(socketUrl);
+      
+      socket.on('connect', () => {
+        console.log('Connected to Command Center WebSocket');
+      });
+
+      socket.on('issueUpdated', () => {
+        fetchNotifications();
+        fetchIssues();
+      });
+
+      // Also keep a slower backup poll just in case
       const interval = setInterval(() => {
         fetchNotifications();
         fetchIssues();
-      }, 30000);
-      return () => clearInterval(interval);
+      }, 60000);
+      
+      return () => {
+        clearInterval(interval);
+        socket.disconnect();
+      };
     }
   }, [token, user]);
+  const detectLiveLocation = () => {
+    if ('geolocation' in navigator) {
+      triggerToast('Detecting location...', 'info');
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          setReportForm(prev => ({
+            ...prev,
+            lat: latitude,
+            lng: longitude,
+            address: `Live Location: ${latitude.toFixed(4)}, ${longitude.toFixed(4)}`
+          }));
+          triggerToast('Location detected successfully', 'success');
+        },
+        (error) => {
+          triggerToast('Failed to detect location. Please enable GPS permissions.', 'error');
+        }
+      );
+    } else {
+      triggerToast('Geolocation is not supported by your browser', 'error');
+    }
+  };
 
   const handleReportSubmit = async (e, asDraft = false) => {
     e.preventDefault();
@@ -769,8 +808,17 @@ const CitizenDashboard = () => {
                       </div>
 
                       <div>
-                        <label className="text-xs font-bold text-slate-500 dark:text-slate-400">Exact Location Address</label>
-                        <div className="relative mt-2 mb-4">
+                        <div className="flex items-center justify-between mb-2">
+                          <label className="text-xs font-bold text-slate-500 dark:text-slate-400">Exact Location Address</label>
+                          <button
+                            type="button"
+                            onClick={detectLiveLocation}
+                            className="text-[10px] font-bold text-primary-600 hover:text-primary-700 dark:text-primary-400 flex items-center gap-1 bg-primary-50 dark:bg-primary-900/20 px-2 py-1 rounded-lg"
+                          >
+                            <MapPin className="h-3 w-3" /> Detect Location
+                          </button>
+                        </div>
+                        <div className="relative mb-4">
                           <MapPin className="absolute left-3 top-3 h-5 w-5 text-slate-450" />
                           <input
                             type="text"

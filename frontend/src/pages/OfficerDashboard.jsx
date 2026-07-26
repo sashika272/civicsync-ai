@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { io } from 'socket.io-client';
 import ThemeToggle from '../components/ThemeToggle';
 import Toast from '../components/Toast';
 import { 
@@ -103,8 +104,18 @@ const OfficerDashboard = () => {
   useEffect(() => {
     if (token && user) {
       fetchIssues();
-      const interval = setInterval(fetchIssues, 30000);
-      return () => clearInterval(interval);
+      const socketUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' ? 'http://localhost:5000' : 'https://civicsync-ai.onrender.com');
+      const socket = io(socketUrl);
+      
+      socket.on('issueUpdated', () => {
+        fetchIssues();
+      });
+
+      const interval = setInterval(fetchIssues, 60000);
+      return () => {
+        clearInterval(interval);
+        socket.disconnect();
+      };
     }
   }, [token, user]);
 

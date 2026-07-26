@@ -220,6 +220,7 @@ const reportIssue = async (req, res) => {
         );
       }
 
+      if (req.io) req.io.emit('issueUpdated');
       return res.status(201).json({ success: true, data: issue });
     
   } catch (error) {
@@ -384,6 +385,7 @@ const updateIssue = async (req, res) => {
         );
       }
 
+      if (req.io) req.io.emit('issueUpdated');
       return res.json({ success: true, data: updatedIssue });
     
   } catch (error) {
@@ -430,6 +432,7 @@ const deleteIssue = async (req, res) => {
       );
     
 
+    if (req.io) req.io.emit('issueUpdated');
     return res.json({ success: true, message: 'Complaint successfully cancelled and deleted' });
   } catch (error) {
     console.error(error);
@@ -563,6 +566,7 @@ const assignIssue = async (req, res) => {
         .populate('reporter', 'name email phone')
         .populate('assignedOfficer', 'name email phone');
 
+      if (req.io) req.io.emit('issueUpdated');
       return res.json({ success: true, data: populatedIssue });
     
   } catch (error) {
@@ -617,6 +621,7 @@ const updateIssueStatus = async (req, res) => {
         .populate('reporter', 'name email phone')
         .populate('assignedOfficer', 'name email phone');
 
+      if (req.io) req.io.emit('issueUpdated');
       return res.json({ success: true, data: populatedIssue });
     
   } catch (error) {
@@ -691,6 +696,7 @@ const voiceComplaint = async (req, res) => {
       );
     
 
+    if (req.io) req.io.emit('issueUpdated');
     res.status(201).json({ success: true, data: issue });
   } catch (error) {
     console.error(error);
@@ -826,6 +832,7 @@ const submitFeedback = async (req, res) => {
         );
       }
 
+      if (req.io) req.io.emit('issueUpdated');
       return res.json({ success: true, data: issue });
     
   } catch (error) {
