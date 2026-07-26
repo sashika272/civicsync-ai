@@ -120,9 +120,9 @@ const CitizenDashboard = () => {
       const data = await response.json();
       if (data.success) {
         const myIssues = data.data.filter(issue => {
-          const reporterId = issue.reporter._id || issue.reporter;
-          const currentUserId = user._id || user.id;
-          return reporterId === currentUserId;
+          const reporterId = issue.reporter?._id || issue.reporter;
+          const currentUserId = user?._id || user?.id;
+          return String(reporterId) === String(currentUserId);
         });
 
         setIssues(myIssues);
@@ -1008,12 +1008,12 @@ const CitizenDashboard = () => {
 
                     <div className="space-y-3">
                       {notifications.map(n => (
-                        <div key={n.id} className={`glass-card rounded-2xl p-5 shadow-sm border-l-4 ${n.read ? 'border-l-slate-300 dark:border-l-slate-800' : 'border-l-primary-600'}`}>
+                        <div key={n._id || n.id} className={`glass-card rounded-2xl p-5 shadow-sm border-l-4 ${n.isRead || n.read ? 'border-l-slate-300 dark:border-l-slate-800' : 'border-l-primary-600'}`}>
                           <div className="flex justify-between items-start">
                             <h4 className="text-sm font-bold text-slate-900 dark:text-white">{n.title}</h4>
-                            <span className="text-[10px] font-semibold text-slate-400">{n.time}</span>
+                            <span className="text-[10px] font-semibold text-slate-400">{new Date(n.createdAt || n.time).toLocaleString()}</span>
                           </div>
-                          <p className="mt-1.5 text-xs text-slate-500 dark:text-slate-400 leading-relaxed">{n.desc}</p>
+                          <p className="mt-1.5 text-xs text-slate-500 dark:text-slate-400 leading-relaxed">{n.message || n.desc}</p>
                         </div>
                       ))}
                     </div>

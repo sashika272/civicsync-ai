@@ -2,6 +2,8 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const connectDB = require('./config/db');
+const User = require('./models/User');
+const bcrypt = require('bcryptjs');
 const http = require('http');
 const { Server } = require('socket.io');
 
@@ -28,8 +30,38 @@ io.on('connection', (socket) => {
 app.use(cors());
 app.use(express.json({ limit: '10mb' })); // support larger payloads for images if base64 uploaded
 
-// DB Connection
-connectDB();
+// DB Connection & Seeding
+connectDB().then(async (isConnected) => {
+  if (isConnected) {
+    try {
+      const adminEmail = 'sashikn1429@gmail.com';
+      const existingAdmin = await User.findOne({ email: adminEmail });
+      if (!existingAdmin) {
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash('sashika14*', salt);
+        await User.create({
+          name: 'Super Admin',
+          email: adminEmail,
+          password: hashedPassword,
+          phone: '9999999999',
+          role: 'admin'
+        });
+        console.log('✅ Default Admin Account Seeded (sashikn1429@gmail.com)');
+      } else {
+        // Ensure role is admin
+        if (existingAdmin.role !== 'admin') {
+          existingAdmin.role = 'admin';
+          await existingAdmin.save();
+          console.log('✅ Default Admin Account role updated to ADMIN');
+        } else {
+          console.log('✅ Default Admin Account already exists');
+        }
+      }
+    } catch (err) {
+      console.error('❌ Failed to seed default admin:', err.message);
+    }
+  }
+});
 
 // API Health Check
 app.get('/api/health', (req, res) => {
